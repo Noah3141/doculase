@@ -319,7 +319,6 @@ impl OpenAIAccount {
                 println!("--[Sending to GPT]--");
                 // Load the pdf from the provided file path, or else return to the caller a NotFoundError 
                 let pdf = lopdf::Document::load(path_to_pdf).map_err(|e| return e.to_string())?;
-
                 let mut doc = String::new();
                 for page in 1..=pdf.get_pages().len() {
                     let content = pdf.extract_text(&[page as u32]).expect("parse");

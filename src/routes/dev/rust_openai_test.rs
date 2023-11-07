@@ -9,8 +9,13 @@ pub async fn test() -> Json<Query> {
     let res = openai
         .get_completion("Spell alphabet".to_string(), None)
         .await
-        .expect("foo");
+        .expect("Failed to get completion");
+
+
+    openai.db_insert_cache().await.expect("insertion");
+
 
     Json(res)
 
 }
+

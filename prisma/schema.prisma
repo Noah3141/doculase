@@ -1,0 +1,207 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+model query_cache {
+    rid               Int    @id @default(autoincrement())
+    timestamp         String @db.VarChar(45)
+    model             String @db.VarChar(45)
+    temperature       Float  @db.Float
+    prompt            String @db.Char(64)
+    query_key         String @db.LongText
+    query_key_hash    String @unique(map: "query_key_hash_UNIQUE") @db.Char(64)
+    prompt_tokens     Int
+    completion_tokens Int
+    total_tokens      Int
+    process_time      Int
+    response          Json
+    cost              Float  @db.Float
+}
+
+model Session {
+    id           String   @id @default(cuid())
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+    id                String  @id @default(cuid())
+    userId            String
+    type              String
+    provider          String
+    providerAccountId String
+    refresh_token     String? @db.Text
+    access_token      String? @db.Text
+    expires_at        Int?
+    token_type        String?
+    scope             String?
+    id_token          String? @db.Text
+    session_state     String?
+    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([provider, providerAccountId])
+}
+
+model User {
+    id            String         @id @default(cuid())
+    name          String?
+    email         String?        @unique
+    /// When not null, emails will be sent to this email. When null, none will be sent (even to user email)
+    notifyByEmail String?
+    emailVerified DateTime?
+    image         String?
+    role          Role           @default(User)
+    membership    Membership     @default(Unpaid)
+    accounts      Account[]
+    sessions      Session[]
+    /// Users collection of libraries
+    libraries     Library[]
+    /// Collection of references and topics
+    notebook      Notebook?
+    /// Individual citable references associated with this user
+    references    Reference[]
+    jobs          Job[]
+    topics        Topic[]
+    createdAt     DateTime       @default(now())
+    notifications Notification[]
+}
+
+model Notification {
+    id        String           @id @default(cuid())
+    message   String
+    User      User             @relation(fields: [userId], references: [id])
+    userId    String
+    jobId     String?
+    type      NotificationType
+    createdAt DateTime         @default(now())
+    dismissed Boolean          @default(false)
+}
+
+enum NotificationType {
+    JOB_UPDATE
+    MEMBERSHIP_UPDATE
+}
+
+enum Membership {
+    Unpaid
+    Paid
+}
+
+enum Role {
+    User
+    Admin
+}
+
+model Library {
+    id        String     @id @default(cuid())
+    /// User defined name for the library
+    title     String
+    User      User       @relation(fields: [userId], references: [id])
+    userId    String
+    createdAt DateTime   @default(now())
+    /// Time of last document addition
+    updatedAt DateTime   @default(now())
+    documents Document[]
+    jobs      Job[]
+}
+
+model Document {
+    id                String      @id @default(cuid())
+    title             String
+    library           Library     @relation(fields: [libraryId], references: [id], onDelete: Cascade)
+    libraryId         String
+    jobId             String?
+    createdAt         DateTime    @default(now())
+    publishedAt       DateTime?
+    docletCount       Int?
+    publicationSource String
+    authors           Author[]
+    Reference         Reference[]
+}
+
+model Notebook {
+    User       User        @relation(fields: [userId], references: [id])
+    userId     String      @unique
+    topics     Topic[]
+    references Reference[]
+}
+
+model Topic {
+    id             String      @id @default(cuid())
+    name           String
+    /// Notes for this topic
+    notes          String?
+    references     Reference[]
+    notebook       Notebook    @relation(fields: [notebookUserId], references: [userId])
+    notebookUserId String
+    User           User        @relation(fields: [userId], references: [id])
+    userId         String
+    createdAt      DateTime    @default(now())
+    updatedAt      DateTime?
+}
+
+model Reference {
+    id             String   @id @default(cuid())
+    topic          Topic?   @relation(fields: [topicId], references: [id], onDelete: Cascade)
+    topicId        String?
+    /// The notes a user has written and entered for this reference
+    notes          String?  @db.MediumText
+    userId         String
+    user           User     @relation(fields: [userId], references: [id])
+    notebook       Notebook @relation(fields: [notebookUserId], references: [userId])
+    notebookUserId String
+    /// Sentence index of quote
+    sentenceNumber Int?
+    score          Float?
+    preText        String   @db.Text
+    focalText      String   @db.Text
+    postText       String   @db.Text
+    /// Page at which quote is found
+    pageNumber     Int
+    addedAt        DateTime @default(now())
+    document       Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+    documentId     String
+    authors        Author[]
+    // APA            String?
+}
+
+model Author {
+    id          String     @id @default(cuid())
+    name        String
+    Reference   Reference? @relation(fields: [referenceId], references: [id])
+    referenceId String?
+    Document    Document[]
+}
+
+//
+//
+//
+model Job {
+    id            String    @id @default(cuid())
+    status        Status
+    createdAt     DateTime  @default(now())
+    startedAt     DateTime?
+    endedAt       DateTime?
+    documentCount Int
+    Library       Library   @relation(fields: [libraryId], references: [id], onDelete: Cascade)
+    libraryId     String
+    User          User      @relation(fields: [userId], references: [id])
+    userId        String
+    message       String?
+}
+
+enum Status {
+    RUNNING
+    PENDING
+    COMPLETED
+    FAILED
+    CANCELLED
+    UNKNOWN
+}
