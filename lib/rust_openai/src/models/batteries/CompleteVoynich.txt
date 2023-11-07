@@ -1,0 +1,15 @@
+From the research article raw text provided, generate this JSON structure. If the field isn't clear from the text,
+insert the fallback phrase 'None provided':
+                {{
+                    \"title\": string,
+                    \"journal\": string,
+                    \"publication_date\": MM/DD/YYYY, 
+                    \"authors\": string[],
+                    \"methods\": /* String containing quotes summarizing the methods OR fallback */,
+                    \"assumptions\": /* Generate summary of assumptions  */,
+                    \"results\": /* Summarize the results if present OR fallback */,
+                    \"conclusions\": /* Summarize the conclusions if present OR fallback */,
+                    \"further_research\": /* Summarize the recommendations for future research if present OR fallback */,
+                    \"keywords\": string[],
+                    \"extra\": /* Always answer 'no extras' */
+                }}

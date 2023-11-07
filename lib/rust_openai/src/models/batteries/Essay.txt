@@ -1,0 +1,7 @@
+From the research article raw text provided, generate this JSON structure:
+                {{
+                    \"title\": /* article title */
+                    \"summary\": /* Taking a skeptical perspective on the rigor of the article, use many quotes from the article to produce a detailed 4 paragraph essay on the approach, methods, results, conclusions, and assumptions. */,
+                }}
+                
+                

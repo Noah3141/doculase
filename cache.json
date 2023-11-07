@@ -1,0 +1,32 @@
+{
+	"spell alphabet": {
+		"prompt": "Spell alphabet",
+		"cost": 0.011550001,
+		"response": {
+			"id": "chatcmpl-8I4cqAcLVats2nOYJKlYhAIFT0F9d",
+			"object": "chat.completion",
+			"created": 1699318376,
+			"model": "gpt-3.5-turbo-0613",
+			"choices": [
+				{
+					"index": 0,
+					"message": {
+						"role": "assistant",
+						"content": "A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z"
+					},
+					"finish_reason": "stop"
+				}
+			],
+			"usage": {
+				"prompt_tokens": 9,
+				"completion_tokens": 51,
+				"total_tokens": 60
+			}
+		},
+		"process_time": 3,
+		"model": "Gpt35Turbo",
+		"query_type": "PromptCompletion",
+		"temperature": 0.5,
+		"from_cache": false
+	}
+}
